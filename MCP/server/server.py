@@ -671,6 +671,7 @@ AGENT_MAP = {
 @booking_mcp.tool()
 async def process_booking_request(
     user_query: str,
+    context: str,
     user_id: str,
     user_name: Optional[str] = None,
     last_agent_name: Optional[str] = None,
@@ -681,6 +682,7 @@ async def process_booking_request(
     or initiating a process to modify/cancel an existing booking.
     Args:
         user_query: The user's natural language query related to appointments.
+        context: Any context information and past conversation/chat history that is relevant to current the user_query
         user_id: The unique identifier for the user.
         last_agent_name: The name of the last agent that handled the request. This is so that that last agent can be set as the starting agent for the this run.
         user_name: (Optional) The name of the user.
@@ -698,10 +700,10 @@ async def process_booking_request(
         # The starting agent is now the more general 'appointments_agent'
         print(f"Last agent name: {last_agent_name}")
         starting_agent = AGENT_MAP.get(last_agent_name, orchestrator_agent)
-        print(f"Calling await Runner.run with starting_agent: '{starting_agent.name}', input: '{user_query}', context for user_id: {user_id}")
+        print(f"Calling await Runner.run with starting_agent: '{starting_agent.name}', user_query: '{user_query}',context/chathistory: '{context}', context for user_id: {user_id}")
         run_result = await Runner.run(
             starting_agent=starting_agent, # Entry point for booking service
-            input=user_query,
+            input= context +user_query ,
             context=wrapper,
             max_turns=10
         )
